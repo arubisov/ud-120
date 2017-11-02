@@ -28,15 +28,17 @@ plt.show()
 ################################################################################
 
 
-### your code here!  name your classifier object clf if you want the 
+### your code here!  name your classifier object clf if you want the
 ### visualization code (prettyPicture) to show you the decision boundary
 
 
-
-
-
-
-
+# Anton did the following:
+# Accuracy = 0.982501434309
+#
+# DecisionTreeClassifier+AdaBoost+GridSearchCV
+#
+# 'base_estimator__criterion': 'entropy', 'base_estimator__max_depth': 7,
+# 'base_estimator__min_samples_split': 4, 'base_estimator__splitter': 'random'
 
 try:
     prettyPicture(clf, features_test, labels_test)
