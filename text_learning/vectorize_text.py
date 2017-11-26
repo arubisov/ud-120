@@ -35,7 +35,7 @@ word_data = []
 ### temp_counter helps you only look at the first 200 emails in the list so you
 ### can iterate your modifications quicker
 temp_counter = 0
-reprocess = False
+reprocess = True
 
 if reprocess:
     for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
@@ -52,7 +52,7 @@ if reprocess:
                 email_text = parseOutText(email)
 
                 ### use str.replace() to remove any instances of the words
-                sig_words = ["sara", "shackleton", "chris", "germani"]
+                sig_words = ["sara", "shackleton", "chris", "germani", "sshacklensf", "cgermannsf"]
                 for word in sig_words:
                     email_text = email_text.replace(word, "")
 
