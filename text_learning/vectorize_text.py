@@ -35,41 +35,69 @@ word_data = []
 ### temp_counter helps you only look at the first 200 emails in the list so you
 ### can iterate your modifications quicker
 temp_counter = 0
+reprocess = False
 
+if reprocess:
+    for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
+        for path in from_person:
+            ### only look at first 200 emails when developing
+            ### once everything is working, remove this line to run over full dataset
+            #temp_counter += 1
+            #if temp_counter < 200:
+                path = os.path.join('..', path[:-1])
+                print path
+                email = open(path, "r")
 
-for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
-    for path in from_person:
-        ### only look at first 200 emails when developing
-        ### once everything is working, remove this line to run over full dataset
-        temp_counter += 1
-        if temp_counter < 200:
-            path = os.path.join('..', path[:-1])
-            print path
-            email = open(path, "r")
+                ### use parseOutText to extract the text from the opened email
+                email_text = parseOutText(email)
 
-            ### use parseOutText to extract the text from the opened email
+                ### use str.replace() to remove any instances of the words
+                sig_words = ["sara", "shackleton", "chris", "germani"]
+                for word in sig_words:
+                    email_text = email_text.replace(word, "")
 
-            ### use str.replace() to remove any instances of the words
-            ### ["sara", "shackleton", "chris", "germani"]
+                ### append the text to word_data
+                word_data.append(email_text)
 
-            ### append the text to word_data
+                ### append a 0 to from_data if email is from Sara, and 1 if email is from Chris
+                if name == "sara":
+                    from_data.append(0)
+                else:
+                    from_data.append(1)
 
-            ### append a 0 to from_data if email is from Sara, and 1 if email is from Chris
+                email.close()
 
+    print "emails processed"
+    from_sara.close()
+    from_chris.close()
 
-            email.close()
+    # print(word_data[152])
 
-print "emails processed"
-from_sara.close()
-from_chris.close()
-
-pickle.dump( word_data, open("your_word_data.pkl", "w") )
-pickle.dump( from_data, open("your_email_authors.pkl", "w") )
-
-
-
-
+    pickle.dump( word_data, open("your_word_data.pkl", "w") )
+    pickle.dump( from_data, open("your_email_authors.pkl", "w") )
+else:
+    word_data = pickle.load(open("your_word_data.pkl", "r"))
+    from_data = pickle.load(open("your_email_authors.pkl", "r"))
 
 ### in Part 4, do TfIdf vectorization here
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+vectorizer = TfidfVectorizer(stop_words='english')
+tfidf = vectorizer.fit_transform(word_data)
+print len(vectorizer.get_feature_names())
+print vectorizer.get_feature_names()[34597]
 
 
+# NLTK notes:
+'''
+import nltk
+from nltk.corpus import stopwords
+len(stopwords.words("english"))
+'''
+
+'''
+from nltk.stem.snowball import SnowballStemmer
+stemmer = SnowballStemmer("english")
+stemmer.stem("responsiveness")
+stemmer.stem("unresponsive")
+'''
