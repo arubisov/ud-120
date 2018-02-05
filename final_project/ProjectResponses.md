@@ -2,7 +2,11 @@
 2018.02.04  
 Anton Rubisov
 
-### Included in Folder
+### Requirements
+
+Up-to-date Python 2.7 with Anaconda distribution
+
+### Included in .zip Folder
 - my_dataset.pkl
 - my_classifier.pkl
 - my_feature_list.pkl
