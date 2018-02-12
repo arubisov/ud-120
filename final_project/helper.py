@@ -85,6 +85,7 @@ def featureFormatDF(dictionary, features, remove_NaN=True, remove_all_zeroes=Tru
     df.columns = features
 
     return df
+    
 
 def run_logistic_regression_classifier(X_train, X_test, y_train, y_test, beta=1):
     print "{} ({:.2f}%) positive labels in training set".format(len(y_train[y_train == True]), 100.0*len(y_train[y_train == True])/len(y_train))

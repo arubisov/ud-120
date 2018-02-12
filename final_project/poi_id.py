@@ -5,12 +5,12 @@ import pickle
 import numpy as np
 import pandas as pd
 from scipy import stats
+from sklearn.model_selection import train_test_split
 
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 from tester import test_classifier, dump_classifier_and_data
-from helper import featureFormatDF, run_logistic_regression_classifier,
-                   run_decision_tree_classifier, plot_roc
+from helper import featureFormatDF, run_logistic_regression_classifier, run_decision_tree_classifier, plot_roc
 
 
 ### Task 1: Select what features you'll use.
@@ -39,11 +39,14 @@ my_dataset = data_dict
 ### The first feature must be "poi".
 ### Extract features and labels from dataset for local testing
 features_list = ['poi'] + ['bonus_to_salary_ratio'] + financial_features + email_features
-df = featureFormatDF(my_dataset, features_list, remove_all_zeroes=False, sort_keys = True)
-df = df.drop(['TOTAL'])
+df = featureFormatDF(my_dataset, features_list, sort_keys = True)
+df = df.drop(['restricted_stock_deferred', 'director_fees', 'loan_advances'], axis=1)
+df = df.drop(['bonus_to_salary_ratio'], axis=1)
 
 ### Task 2: Remove outliers
-df = df[(np.abs(stats.zscore(df)) < 3).all(axis=1)]
+df = df.drop(['TOTAL'], axis=0)
+
+# df = df[(np.abs(stats.zscore(df)) < 3).all(axis=1)]
 
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
@@ -52,14 +55,14 @@ df = df[(np.abs(stats.zscore(df)) < 3).all(axis=1)]
 ### http://scikit-learn.org/stable/modules/pipeline.html
 
 # Provided to give you a starting point. Try a variety of classifiers.
-X = df[features_list[1:]]
-y = df[features_list[0]]
+X = df[df.columns[1:]]
+y = df[df.columns[0]]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 clf = run_logistic_regression_classifier(X_train, X_test, y_train, y_test)
 # plot_roc(clf, X_test, y_test, X_train, y_train)
 
-dt = run_decision_tree_classifier(X_train, X_test, y_train, y_test)
+# dt = run_decision_tree_classifier(X_train, X_test, y_train, y_test)
 # test_classifier(dt, my_dict, features_list)
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
@@ -70,10 +73,10 @@ dt = run_decision_tree_classifier(X_train, X_test, y_train, y_test)
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
 # Example starting point. Try investigating other evaluation techniques!
-feature_weights = (df[features_list[1:]].std().as_matrix() * clf.coef_)[0]
+feature_weights = (df[df.columns[1:]].std().as_matrix() * clf.coef_)[0]
 for idx, value in enumerate(feature_weights):
     if abs(value) > 10:
-        print "Feature[{}] {}: {:.2f}".format(idx, features_list[idx], value)
+        print "Feature[{}] {}: {:.2f}".format(idx, df.columns[idx+1], value)
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
@@ -82,7 +85,7 @@ for idx, value in enumerate(feature_weights):
 
 my_dataset = df.to_dict(orient="index")
 
-test_classifier(dt, my_dataset, features_list)
-test_classifier(clf, my_dataset, features_list)
+test_classifier(clf, my_dataset, df.columns)
+# test_classifier(dt, my_dataset, features_list)
 
 dump_classifier_and_data(clf, my_dataset, features_list)
