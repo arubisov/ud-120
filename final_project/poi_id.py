@@ -42,6 +42,7 @@ features_list = ['poi'] + ['bonus_to_salary_ratio'] + financial_features + email
 df = featureFormatDF(my_dataset, features_list, sort_keys = True)
 df = df.drop(['restricted_stock_deferred', 'director_fees', 'loan_advances'], axis=1)
 df = df.drop(['bonus_to_salary_ratio'], axis=1)
+features_list = list(df.columns)
 
 ### Task 2: Remove outliers
 df = df.drop(['TOTAL'], axis=0)
