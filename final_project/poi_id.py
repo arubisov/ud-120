@@ -74,7 +74,13 @@ clf = run_logistic_regression_classifier(X_train, X_test, y_train, y_test)
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
 # Example starting point. Try investigating other evaluation techniques!
-feature_weights = (df[df.columns[1:]].std().as_matrix() * clf.coef_)[0]
+feature_indices = [1 + idx for idx in list(clf.named_steps['kbest'].get_support(indices=True))]
+
+print "Columns chosen by SelectKBest:"
+print ", ".join(df.columns[feature_indices])
+
+print "Top features:"
+feature_weights = (df.iloc[:, feature_indices].std().as_matrix() * clf.named_steps['lr'].coef_)[0]
 for idx, value in enumerate(feature_weights):
     if abs(value) > 10:
         print "Feature[{}] {}: {:.2f}".format(idx, df.columns[idx+1], value)

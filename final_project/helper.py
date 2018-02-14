@@ -9,6 +9,8 @@ from sklearn.model_selection import GridSearchCV
 # from imblearn.over_sampling import SMOTE
 # from imblearn.pipeline import Pipeline
 from sklearn.metrics import roc_curve, auc, confusion_matrix, fbeta_score, make_scorer
+from sklearn.pipeline import Pipeline
+from sklearn.feature_selection import SelectKBest, f_classif
 
 
 def featureFormatDF(dictionary, features, remove_NaN=True, remove_all_zeroes=True, remove_any_zeroes=False, sort_keys = False):
@@ -85,22 +87,28 @@ def featureFormatDF(dictionary, features, remove_NaN=True, remove_all_zeroes=Tru
     df.columns = features
 
     return df
-    
+
 
 def run_logistic_regression_classifier(X_train, X_test, y_train, y_test, beta=1):
     print "{} ({:.2f}%) positive labels in training set".format(len(y_train[y_train == True]), 100.0*len(y_train[y_train == True])/len(y_train))
     print "{} ({:.2f}%) positive labels in test set".format(len(y_test[y_test == True]), 100.0*len(y_test[y_test == True])/len(y_test))
 
     t0 = time()
+
+    pipeline = Pipeline([('kbest', SelectKBest(f_classif)),
+                         ('lr', LogisticRegression(class_weight='balanced'))])
+
     param_grid = {
-             'C': [1e1, 1e2, 1e3, 1e4, 1e5, 1e6],
-              'penalty': ['l1', 'l2'],
-              }
-    f5_scorer = make_scorer(fbeta_score, beta=beta)
-    clf = GridSearchCV(estimator=LogisticRegression(class_weight='balanced'),
+                  'kbest__k': range(15, X_train.shape[1] + 1),
+                  'lr__C': np.logspace(-10, 10, 5),
+                  'lr__penalty': ['l1', 'l2'],
+                 }
+
+    clf = GridSearchCV(estimator=pipeline,
                        param_grid=param_grid,
-                       scoring=f5_scorer)
+                       scoring=make_scorer(fbeta_score, beta=beta))
     clf = clf.fit(X_train, y_train)
+
     print "training time: {}s".format(round(time() - t0, 3))
     print "Best estimator found by grid search:"
     print clf.best_estimator_

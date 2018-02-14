@@ -30,11 +30,10 @@ Up-to-date Python 2.7 with Anaconda distribution
 
   20 features is not high-dimensional data, so I felt dimensionality-reduction via feature selection was not necessary. That said, to get some experience with it, I implemented RFECV in my pipeline, and was surprised to find that it only contained e-mail-based features in its support. I revised my initial dataset to exclude all financial data, and found my classifier's performance relatively unchanged. This was explained by the fact that the tester code function, `test_classifier()`, uses the `featureFormat()` function with its default parameters, specifically `remove_all_zeroes=False`. That setting causes `featureFormat()` to drop any row that contains all zeros _excluding_ the POI label, as a result of which 4 POIs get dropped. Thus, the classifier performance on the remaining 14 POIs is indeed high, but 4 other POIs aren't being predicted at all. This is a definite flaw in the tester code, which is inherently relying on no POIs being dropped by virtue of the list of features selected.
 
-  Knowing that this approach is not correct, but that I wouldn't be able to change the tester.py code that the automatic grading uses for the submission (although I could of course change it locally), I reverted to my initial assessment that 20 features is not high-dimensional, and chose to retain all numeric features save the aforementioned three with high numbers of missing values.
+  I replaced RFECV in my pipeline with SelectKBest, and I used GridSearchCV to optimize a choice for k. The choices turned out to be k=16, and the columns chosen by SelectKBest were: salary, deferral_payments, total_payments, bonus, deferred_income, total_stock_value, expenses, exercised_stock_options, other, long_term_incentive, restricted_stock, to_messages, from_poi_to_this_person, from_messages, from_this_person_to_poi, shared_receipt_with_poi. Among these features, the top contributors to classification were:
 
-  I found my most important features to be:
-  Feature[5] total_stock_value: 12.37
-  Feature[13] from_messages: -15.20
+  Feature[5] total_stock_value: 12.02
+  Feature[13] from_messages: -15.22
 
 1. What algorithm did you end up using? What other one(s) did you try? How did model performance differ between algorithms?  [relevant rubric item: “pick an algorithm”]
 
